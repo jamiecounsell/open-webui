@@ -729,9 +729,10 @@ class PipelineMiddleware(BaseHTTPMiddleware):
         try:
             data = filter_pipeline(data, user)
         except Exception as e:
+            log.error("failed dispatching pipeline middleware", e)
             return JSONResponse(
-                status_code=e.args[0],
-                content={"detail": e.args[1]},
+                status_code=e.args[0] if len(e.args) else 500,
+                content={"detail": e.args[1] if len(e.args) else e}
             )
 
         modified_body_bytes = json.dumps(data).encode("utf-8")
